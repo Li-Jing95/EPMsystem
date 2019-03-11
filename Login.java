@@ -2,11 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class Login {
+    public Login() {
+    }
+
     public void createJFrame() {
         JFrame jframe = new JFrame("登录");
         jframe.setSize(500, 450);
@@ -67,28 +68,44 @@ public class Login {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //加载类
-                try {
-                    Class.forName("com.mysql.jdbc.Driver");
-                } catch (ClassNotFoundException e1) {
-                    e1.printStackTrace();
-                }
-                //连接数据库
-                String url = "jdbc:mysql://localhost:3306/information?useUnicode=true&&characterEncoding=utf-8&&useSSL=false";
-                String mysqlroot = "root";
-                String mysqlrootpsw = "root";
-
-                try {
-                    Connection con = DriverManager.getConnection(url, mysqlroot, mysqlrootpsw);
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
-                }
-
-
                 String name = nameinput.getText();
                 String psw = new String(pswinput.getPassword());
+
                 if (name == null || psw == null || name.trim().equals("") || psw.trim().equals("")) {
                     JOptionPane.showMessageDialog(null, "用户名或密码不能为空！");
+                } else {
+                    //加载类
+                    try {
+                        Class.forName("com.mysql.jdbc.Driver");
+                    } catch (ClassNotFoundException e1) {
+                        e1.printStackTrace();
+                    }
+                    //连接数据库
+                    String url = "jdbc:mysql://localhost:3306/login";
+                    String mysqlroot = "root";
+                    String mysqlrootpsw = "root";
+
+                    try {
+                        Connection con = DriverManager.getConnection(url, mysqlroot, mysqlrootpsw);
+                        String sql = "select * from admin";
+                        PreparedStatement pst = con.prepareStatement(sql);
+                        ResultSet rs = pst.executeQuery();
+                        String n = null;
+                        String p = null;
+                        while (rs.next()) {
+                            n = rs.getString("用户名");
+                            p = rs.getString("密码");
+                            if (n.equals(name) && p.equals(psw)) {
+                                JOptionPane.showMessageDialog(null, "登录成功！");
+                                Demo demo = new Demo();
+                                demo.createJFrame();
+                                jframe.dispose();//关闭释放
+                            }
+                        }
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
+
                 }
             }
         });
