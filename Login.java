@@ -2,24 +2,26 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Login {
-    {
-
-    }
-
     public void createJFrame() {
         JFrame jframe = new JFrame("登录");
-        jframe.setSize(500, 350);
+        jframe.setSize(500, 450);
         Toolkit tk = Toolkit.getDefaultToolkit();
         Dimension screenSize = tk.getScreenSize();
         //显示位置是屏幕的宽度-JFrame宽度的一半，高度类似。
-        jframe.setLocation((screenSize.width - 500) / 2, (screenSize.height - 350) / 2);
+        jframe.setLocation((screenSize.width - 500) / 2, (screenSize.height - 450) / 2);
         Container panel = jframe.getContentPane();
         panel.setLayout(null);
 
         JLabel welcome = new JLabel("用户登录 USER LOGIN");
-        welcome.setBounds(120, 20, 300, 50);
+        //jlabel.setFont(new Font("Dialog",1,15));
+        //“dialog”代表字体，1代表样式(1是粗体，0是平常的）15是字号
+        welcome.setFont(new Font("黑体", 1, 14));
+        welcome.setBounds(100, 20, 300, 50);
         panel.add(welcome);
 
         JLabel name = new JLabel("用户名：");
@@ -32,26 +34,32 @@ public class Login {
         JPasswordField pswinput = new JPasswordField();
         pswinput.setBounds(180, 160, 200, 30);
 
-        JLabel jurisdiction = new JLabel("权    限");
-        jurisdiction.setBounds(100,220,100,30);
+        JLabel quanxian = new JLabel("权    限：");
+        quanxian.setBounds(100, 220, 100, 30);
         String[] jd = {"管理员", "员工"};
-        JComboBox jComboBox=new JComboBox(jd);
-        jComboBox.setBounds(180,220,100,30);
+        JComboBox jComboBox = new JComboBox(jd);
+        jComboBox.setBounds(180, 220, 100, 30);
+
+        JButton ok = new JButton("登录(O)");
+        //键盘助记符   Alt+键盘上的一个键
+        ok.setMnemonic('O');
+        ok.setBounds(140, 280, 100, 30);
+
+
+        JButton cancel = new JButton("退出(X)");
+        cancel.setMnemonic('X');
+        cancel.setBounds(260, 280, 100, 30);
 
 
         panel.add(name);
         panel.add(password);
         panel.add(nameinput);
         panel.add(pswinput);
-        panel.add(jurisdiction);
-
-        JButton ok = new JButton("登录");
-        ok.setBounds(140, 230, 100, 30);
+        panel.add(quanxian);
+        panel.add(jComboBox);
         panel.add(ok);
-
-        JButton cancel = new JButton("取消");
-        cancel.setBounds(260, 230, 100, 30);
         panel.add(cancel);
+
         jframe.setVisible(true);
 
         ok.addActionListener(new ActionListener() {
@@ -59,25 +67,28 @@ public class Login {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                //加载类
+                try {
+                    Class.forName("com.mysql.jdbc.Driver");
+                } catch (ClassNotFoundException e1) {
+                    e1.printStackTrace();
+                }
+                //连接数据库
+                String url = "jdbc:mysql://localhost:3306/information?useUnicode=true&&characterEncoding=utf-8&&useSSL=false";
+                String mysqlroot = "root";
+                String mysqlrootpsw = "root";
+
+                try {
+                    Connection con = DriverManager.getConnection(url, mysqlroot, mysqlrootpsw);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
+
                 String name = nameinput.getText();
                 String psw = new String(pswinput.getPassword());
-                if (name.equals("哈哈哈") && psw.equals("666")) {
-                    JOptionPane.showMessageDialog(null, "登陆成功！");
-                    jframe.dispose();//关闭释放
-                } else {
-                    int n = JOptionPane.showConfirmDialog(null, "账号密码不一致！是否重新输入？",
-                            "消息", JOptionPane.YES_OPTION);
-                    if (n == JOptionPane.YES_OPTION) {
-                        nameinput.setText(" ");
-                        pswinput.setText(" ");
-                        count++;
-                    } else {
-                        System.exit(0);
-                    }
-                    if (count == 3) {
-                        JOptionPane.showMessageDialog(null, "输入错误超过三次！程序结束");
-                        System.exit(0);
-                    }
+                if (name == null || psw == null || name.trim().equals("") || psw.trim().equals("")) {
+                    JOptionPane.showMessageDialog(null, "用户名或密码不能为空！");
                 }
             }
         });
