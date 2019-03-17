@@ -64,7 +64,6 @@ public class Login {
         jframe.setVisible(true);
 
         ok.addActionListener(new ActionListener() {
-            int count = 0;
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -92,6 +91,7 @@ public class Login {
                         ResultSet rs = pst.executeQuery();
                         String n = null;
                         String p = null;
+                        int count = 0;
                         while (rs.next()) {
                             n = rs.getString("用户名");
                             p = rs.getString("密码");
@@ -100,6 +100,20 @@ public class Login {
                                 Demo demo = new Demo();
                                 demo.createJFrame();
                                 jframe.dispose();//关闭释放
+                            }else{
+                                int message = JOptionPane.showConfirmDialog(null, "账号密码不一致！是否重新输入？",
+                                        "消息", JOptionPane.YES_OPTION);
+                                if (message == JOptionPane.YES_OPTION) {
+                                    nameinput.setText(" ");
+                                    pswinput.setText(" ");
+                                    count++;
+                                } else {
+                                    System.exit(0);
+                                }
+                                if (count == 3) {
+                                    JOptionPane.showMessageDialog(null, "输入错误超过三次！程序结束");
+                                    System.exit(0);
+                                }
                             }
                         }
                     } catch (SQLException e1) {
